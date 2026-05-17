@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wolly's — Home of the Wollyburger</title>
+<link rel="icon" type="image/png" href="https://files.catbox.moe/d5zo9y.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+:root {
+  --black: #0d0a08;
+  --night: #1a1410;
+  --cream: #fff8ec;
+  --paper: #fbeed3;
+  --yellow: #ffc629;
+  --yellow-deep: #f0a800;
+  --red: #d83128;
+  --red-deep: #a31f17;
+  --green: #4a8a3a;
+  --green-deep: #356128;
+  --shadow: rgba(13,10,8,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--cream);
+  color: var(--black);
+  overflow-x: hidden;
+  line-height: 1.6;
+  font-size: 16.5px;
+  font-weight: 400;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+img { max-width: 100%; display: block; }
+button, input, textarea, select { font-family: inherit; }
+
+/* ============ NAV ============ */
+nav.topnav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(13,10,8,0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,198,41,0.2);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+nav.topnav .brand {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--cream);
+  text-decoration: none;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 1px;
+}
+nav.topnav .brand img { height: 44px; width: auto; }
+nav.topnav ul {
+  list-style: none;
+  display: flex; gap: 30px;
+  align-items: center;
+}
+nav.topnav ul a {
+  color: var(--cream);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  position: relative;
+  transition: color 0.2s;
+}
+nav.topnav ul a:hover { color: var(--yellow); }
+nav.topnav ul a::after {
+  content: '';
+  position: absolute; bottom: -6px; left: 0;
+  width: 0; height: 2px; background: var(--yellow);
+  transition: width 0.25s ease;
+}
+nav.topnav ul a:hover::after { width: 100%; }
+nav.topnav .order-btn {
+  background: var(--yellow);
+  color: var(--black);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: transform 0.2s, background 0.2s;
+}
+nav.topnav .order-btn:hover { background: var(--cream); transform: scale(1.05); }
+nav.topnav .order-btn::after { display: none; }
+.cart-btn {
+  position: relative;
+  background: transparent;
+  color: var(--cream);
+  border: 2px solid rgba(255,247,232,0.3);
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+  transition: all 0.2s;
+}
+.cart-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+.cart-btn .count {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 0.7rem;
+  font-weight: 800;
+  min-width: 20px; height: 20px;
+  border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 5px;
+}
+.burger { display: none; background: none; border: none; color: var(--cream); font-size: 1.6rem; cursor: pointer; padding: 6px 10px; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+
+/* ============ HERO ============ */
+.hero {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--black);
+  color: var(--cream);
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center;
+  padding: 110px 32px 70px;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 75% 30%, rgba(216,49,40,0.28), transparent 50%),
+    radial-gradient(ellipse at 15% 80%, rgba(255,198,41,0.2), transparent 55%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 38px, rgba(255,198,41,0.04) 38px, rgba(255,198,41,0.04) 39px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 38px, rgba(255,198,41,0.04) 38px, rgba(255,198,41,0.04) 39px);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.hero .badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,198,41,0.12);
+  border: 1px solid rgba(255,198,41,0.4);
+  color: var(--yellow);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.7s 0.1s both;
+}
+.hero .badge .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--yellow);
+  box-shadow: 0 0 0 0 var(--yellow);
+  animation: pulse 1.8s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,198,41,0.7); }
+  70% { box-shadow: 0 0 0 14px rgba(255,198,41,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,198,41,0); }
+}
+.hero h1 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2.8rem, 7vw, 5.8rem);
+  line-height: 0.95;
+  letter-spacing: -1.5px;
+  margin-bottom: 26px;
+  animation: fadeUp 0.8s 0.2s both;
+  font-weight: 400;
+}
+.hero h1 .red { color: var(--red); }
+.hero h1 .yellow { color: var(--yellow); }
+.hero h1 .underline {
+  display: inline-block;
+  position: relative;
+}
+.hero h1 .underline::after {
+  content: '';
+  position: absolute;
+  left: -4%; right: -4%; bottom: -10px;
+  height: 14px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14' preserveAspectRatio='none'><path d='M2 8 Q 50 0, 100 7 T 198 6' stroke='%23ffc629' stroke-width='4' fill='none' stroke-linecap='round'/></svg>") no-repeat center / 100% 100%;
+}
+.hero p.lead {
+  font-size: 1.2rem;
+  color: rgba(255,247,232,0.85);
+  margin-bottom: 36px;
+  max-width: 540px;
+  font-weight: 400;
+  line-height: 1.6;
+  animation: fadeUp 0.8s 0.35s both;
+}
+.hero .cta-row {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.5s both;
+}
+.btn-primary, .btn-ghost, .btn-yellow {
+  padding: 16px 28px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1rem;
+  display: inline-flex; align-items: center; gap: 10px;
+  transition: all 0.25s ease;
+  cursor: pointer; border: none;
+  font-family: inherit;
+}
+.btn-primary {
+  background: var(--red);
+  color: var(--cream);
+  box-shadow: 0 8px 24px -8px rgba(216,49,40,0.6);
+}
+.btn-primary:hover { background: var(--red-deep); transform: translateY(-2px); box-shadow: 0 14px 30px -8px rgba(216,49,40,0.7); }
+.btn-yellow {
+  background: var(--yellow);
+  color: var(--black);
+  box-shadow: 0 8px 24px -8px rgba(255,198,41,0.6);
+}
+.btn-yellow:hover { background: var(--yellow-deep); transform: translateY(-2px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--cream);
+  border: 2px solid rgba(255,247,232,0.3);
+}
+.btn-ghost:hover { border-color: var(--yellow); color: var(--yellow); }
+
+.hero-stats {
+  display: flex; gap: 40px; margin-top: 56px;
+  animation: fadeUp 0.8s 0.7s both;
+}
+.hero-stats .stat .num {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 2.2rem;
+  color: var(--yellow);
+  line-height: 1;
+  font-weight: 400;
+}
+.hero-stats .stat .lbl {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,247,232,0.65);
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.hero-visual {
+  position: relative;
+  animation: fadeUp 0.9s 0.4s both;
+}
+.hero-card {
+  background: var(--yellow);
+  border-radius: 28px;
+  padding: 40px;
+  position: relative;
+  transform: rotate(-2deg);
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: -50%; right: -30%;
+  width: 80%; height: 80%;
+  background: radial-gradient(circle, var(--yellow-deep), transparent 70%);
+  opacity: 0.6;
+}
+.hero-card .logo-big {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 22px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.hero-card .tagline {
+  text-align: center;
+  font-family: 'Archivo Black', sans-serif;
+  color: var(--black);
+  font-size: 1.35rem;
+  letter-spacing: 1px;
+  position: relative; z-index: 2;
+  font-weight: 400;
+}
+.hero-card .tagline small {
+  display: block;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-top: 8px;
+  color: rgba(13,10,8,0.75);
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+.sticker {
+  position: absolute;
+  background: var(--red);
+  color: var(--cream);
+  font-family: 'Archivo Black', sans-serif;
+  width: 115px; height: 115px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  transform: rotate(15deg);
+  top: -20px; right: -10px;
+  z-index: 3;
+  box-shadow: 0 10px 24px -6px rgba(0,0,0,0.4);
+  animation: spin-wobble 6s ease-in-out infinite;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+@keyframes spin-wobble {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-5deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============ SECTIONS ============ */
+section { padding: 110px 32px; position: relative; }
+.container { max-width: 1280px; margin: 0 auto; }
+.eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 16px;
+}
+.eyebrow::before { content: '— '; }
+.section-title {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+  color: var(--black);
+  font-weight: 400;
+}
+.section-sub {
+  font-size: 1.1rem;
+  color: rgba(13,10,8,0.7);
+  max-width: 640px;
+  margin-bottom: 50px;
+  line-height: 1.6;
+}
+
+/* ============ MENU ============ */
+#menu { background: var(--paper); }
+#menu::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 80px;
+  background: var(--cream);
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 100%);
+}
+.menu-filters {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 40px;
+}
+.menu-filters button {
+  background: transparent;
+  border: 2px solid var(--black);
+  color: var(--black);
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.menu-filters button:hover { background: var(--black); color: var(--cream); }
+.menu-filters button.active { background: var(--red); color: var(--cream); border-color: var(--red); }
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 28px;
+}
+.menu-item {
+  background: var(--cream);
+  border-radius: 22px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  position: relative;
+  border: 2px solid transparent;
+  display: flex; flex-direction: column;
+}
+.menu-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 42px -14px var(--shadow);
+  border-color: var(--yellow);
+}
+.menu-item .img-wrap {
+  aspect-ratio: 4 / 3;
+  background: var(--paper);
+  overflow: hidden;
+  position: relative;
+}
+.menu-item .img-wrap img,
+.menu-item .img-wrap svg {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.menu-item:hover .img-wrap img,
+.menu-item:hover .img-wrap svg { transform: scale(1.08); }
+.menu-item .tag {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--black);
+  color: var(--cream);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 5px 11px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.menu-item .tag.signature { background: var(--red); }
+.menu-item .body {
+  padding: 22px 22px 24px;
+  flex: 1; display: flex; flex-direction: column;
+}
+.menu-item h3 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.3px;
+  margin-bottom: 10px;
+  font-weight: 400;
+}
+.menu-item p {
+  font-size: 0.95rem;
+  color: rgba(13,10,8,0.72);
+  flex: 1;
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+.menu-item .add-btn {
+  background: var(--black);
+  color: var(--cream);
+  border: none;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 0.2s, transform 0.2s;
+  align-self: flex-start;
+}
+.menu-item .add-btn:hover { background: var(--red); transform: translateY(-1px); }
+.menu-item .add-btn .plus {
+  width: 20px; height: 20px;
+  background: var(--yellow);
+  color: var(--black);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* ============ ABOUT ============ */
+#about { background: var(--black); color: var(--cream); }
+#about .about-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center;
+}
+#about .eyebrow { color: var(--yellow); }
+#about .section-title { color: var(--cream); }
+#about .section-title .accent {
+  color: var(--yellow);
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+#about p { font-size: 1.05rem; color: rgba(255,247,232,0.82); margin-bottom: 18px; line-height: 1.7; }
+#about .features {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 36px;
+}
+.feature {
+  background: rgba(255,247,232,0.05);
+  border: 1px solid rgba(255,198,41,0.18);
+  padding: 22px;
+  border-radius: 16px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.feature:hover { border-color: var(--yellow); background: rgba(255,198,41,0.08); }
+.feature .icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--yellow);
+  color: var(--black);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  font-size: 1.3rem;
+}
+.feature h4 { font-family: 'Archivo Black', sans-serif; font-size: 1rem; margin-bottom: 6px; font-weight: 400; letter-spacing: 0.3px; }
+.feature p { font-size: 0.9rem; margin: 0; color: rgba(255,247,232,0.7); line-height: 1.55; }
+
+.about-visual {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 100%);
+  border-radius: 32px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 30px 60px -20px rgba(216,49,40,0.4);
+}
+.about-visual::before {
+  content: 'EST';
+  position: absolute; top: 22px; left: 28px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.8rem; letter-spacing: 2px; color: rgba(255,247,232,0.55);
+}
+.about-visual::after {
+  content: 'PARAMARIBO';
+  position: absolute; bottom: 22px; right: 28px;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.8rem; letter-spacing: 3px; color: rgba(255,247,232,0.55);
+}
+.about-visual img.logo-art {
+  width: 75%;
+  height: auto;
+  filter: drop-shadow(0 12px 30px rgba(0,0,0,0.4));
+  animation: float 5s ease-in-out infinite;
+}
+
+/* ============ SHOPS ============ */
+#shops { background: var(--cream); }
+.shops-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 36px;
+  margin-top: 20px;
+}
+.shops-list { display: flex; flex-direction: column; gap: 18px; }
+.shop-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  display: grid; grid-template-columns: 130px 1fr;
+}
+.shop-card:hover { transform: translateX(4px); box-shadow: 0 14px 32px -16px var(--shadow); }
+.shop-card.active { border-color: var(--red); box-shadow: 0 16px 36px -14px rgba(216,49,40,0.3); }
+.shop-card .photo {
+  background: var(--paper);
+  overflow: hidden;
+}
+.shop-card .photo img { width: 100%; height: 100%; object-fit: cover; }
+.shop-card .info { padding: 18px 20px; }
+.shop-card h3 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+  color: var(--black);
+  font-weight: 400;
+}
+.shop-card .addr {
+  font-size: 0.88rem;
+  color: rgba(13,10,8,0.68);
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+.shop-card .hours {
+  font-size: 0.8rem;
+  color: var(--green);
+  font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.shop-card .hours::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+}
+.shop-card .tel {
+  font-size: 0.88rem;
+  color: var(--red);
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+#map {
+  height: 600px;
+  border-radius: 24px;
+  border: 3px solid var(--black);
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 20px 50px -16px var(--shadow);
+}
+
+.wolly-marker {
+  width: 44px; height: 56px;
+  position: relative;
+}
+.wolly-marker .pin {
+  width: 44px; height: 44px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 3px solid var(--cream);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--yellow);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+.wolly-marker .tail {
+  width: 0; height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 14px solid var(--red);
+  margin: -4px auto 0;
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,0.2));
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.leaflet-popup-content { margin: 14px 18px; font-size: 0.9rem; line-height: 1.5; }
+.leaflet-popup-content b {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 6px;
+  color: var(--black);
+  font-weight: 400;
+}
+
+/* ============ FAQ ============ */
+#faq { background: var(--paper); }
+.faq-tabs {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 36px;
+}
+.faq-tabs button {
+  background: transparent;
+  border: 2px solid var(--black);
+  color: var(--black);
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.faq-tabs button:hover { background: var(--black); color: var(--cream); }
+.faq-tabs button.active { background: var(--red); color: var(--cream); border-color: var(--red); }
+.faq-list { max-width: 880px; display: flex; flex-direction: column; gap: 14px; }
+.faq-item {
+  background: var(--cream);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+.faq-item.open { border-color: var(--yellow); }
+.faq-q {
+  padding: 22px 26px;
+  font-weight: 700;
+  font-size: 1.02rem;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1.5;
+}
+.faq-q .plus {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--yellow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  flex-shrink: 0; margin-left: 16px;
+  transition: transform 0.3s, background 0.3s;
+}
+.faq-item.open .plus { background: var(--red); color: var(--cream); transform: rotate(45deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding: 0 26px;
+  color: rgba(13,10,8,0.78);
+  font-size: 0.97rem;
+  line-height: 1.65;
+}
+.faq-item.open .faq-a {
+  max-height: 500px;
+  padding: 0 26px 24px;
+}
+
+/* ============ CONTACT ============ */
+#contact { background: var(--black); color: var(--cream); }
+#contact .eyebrow { color: var(--yellow); }
+#contact .section-title { color: var(--cream); }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 60px;
+  align-items: start;
+}
+.contact-info { display: flex; flex-direction: column; gap: 22px; }
+.contact-info .row {
+  display: flex; gap: 18px;
+  padding: 22px;
+  background: rgba(255,247,232,0.04);
+  border: 1px solid rgba(255,198,41,0.18);
+  border-radius: 16px;
+}
+.contact-info .ic {
+  width: 48px; height: 48px;
+  background: var(--yellow);
+  color: var(--black);
+  border-radius: 14px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+}
+.contact-info h4 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+.contact-info .row p { font-size: 0.95rem; color: rgba(255,247,232,0.78); margin: 0 0 3px 0; line-height: 1.55; }
+.contact-info .row a { color: var(--yellow); text-decoration: none; font-weight: 600; }
+.contact-info .row a:hover { text-decoration: underline; }
+
+.contact-form {
+  background: rgba(255,247,232,0.04);
+  border: 1px solid rgba(255,198,41,0.18);
+  border-radius: 24px;
+  padding: 36px;
+}
+.contact-form label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--yellow);
+  margin-bottom: 8px;
+}
+.contact-form input, .contact-form textarea, .contact-form select {
+  width: 100%;
+  background: rgba(13,10,8,0.4);
+  border: 1px solid rgba(255,247,232,0.18);
+  color: var(--cream);
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  margin-bottom: 22px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus {
+  outline: none; border-color: var(--yellow);
+}
+.contact-form textarea { resize: vertical; min-height: 120px; }
+.contact-form .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.contact-form button { width: 100%; justify-content: center; }
+
+/* ============ FOOTER ============ */
+footer {
+  background: #050403;
+  color: rgba(255,247,232,0.6);
+  padding: 56px 32px 30px;
+  text-align: center;
+}
+footer .footer-inner {
+  max-width: 1280px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+footer img.flogo { height: 62px; opacity: 0.95; }
+footer .smile-row {
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--yellow);
+}
+footer .meta-row {
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(255,247,232,0.1);
+  padding-top: 20px;
+  width: 100%;
+  max-width: 820px;
+  line-height: 1.6;
+}
+
+/* ============ CART DRAWER ============ */
+.cart-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,10,8,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.cart-overlay.open { opacity: 1; pointer-events: auto; }
+.cart-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 460px; max-width: 100vw;
+  background: var(--cream);
+  z-index: 2001;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column;
+  box-shadow: -20px 0 60px -20px rgba(0,0,0,0.3);
+}
+.cart-drawer.open { transform: translateX(0); }
+.cart-head {
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(13,10,8,0.1);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--black);
+  color: var(--cream);
+}
+.cart-head h3 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+.cart-close {
+  background: rgba(255,247,232,0.1);
+  border: none;
+  color: var(--cream);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.cart-close:hover { background: var(--red); }
+.cart-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+.cart-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(13,10,8,0.55);
+}
+.cart-empty .big-emoji { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.5; }
+.cart-empty p { font-size: 1rem; }
+.cart-line {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(13,10,8,0.08);
+  align-items: center;
+}
+.cart-line .thumb {
+  width: 70px; height: 70px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.cart-line .thumb img, .cart-line .thumb svg { width: 100%; height: 100%; object-fit: cover; }
+.cart-line .nm {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.cart-line .qty {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 4px 6px;
+}
+.cart-line .qty button {
+  width: 24px; height: 24px;
+  border: none;
+  background: var(--black);
+  color: var(--cream);
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+}
+.cart-line .qty button:hover { background: var(--red); }
+.cart-line .qty span { font-weight: 700; min-width: 18px; text-align: center; font-size: 0.9rem; }
+.cart-line .rm {
+  background: transparent;
+  border: none;
+  color: rgba(13,10,8,0.5);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 6px;
+}
+.cart-line .rm:hover { color: var(--red); }
+.cart-foot {
+  padding: 24px 28px;
+  border-top: 1px solid rgba(13,10,8,0.1);
+  background: #fff;
+}
+.cart-foot .item-count {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.cart-foot .item-count span:last-child {
+  font-family: 'Archivo Black', sans-serif;
+  color: var(--red);
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+.cart-foot button { width: 100%; justify-content: center; }
+
+/* ============ ORDER MODAL ============ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(13,10,8,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 3000;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 30px 20px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--cream);
+  border-radius: 24px;
+  max-width: 620px;
+  width: 100%;
+  overflow: hidden;
+  animation: modalIn 0.35s ease;
+  margin: auto 0;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-head {
+  background: var(--black);
+  color: var(--cream);
+  padding: 22px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-head h3 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  font-weight: 400;
+}
+.modal-head button {
+  background: rgba(255,247,232,0.1);
+  border: none; color: var(--cream);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.modal-head button:hover { background: var(--red); }
+.modal-body { padding: 28px; }
+.modal-body .stepper {
+  display: flex; gap: 8px; margin-bottom: 24px;
+}
+.step-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(13,10,8,0.12);
+  transition: background 0.3s;
+}
+.step-dot.active { background: var(--red); }
+.step-dot.done { background: var(--green); }
+.modal-body h4 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+.modal-body .sub {
+  color: rgba(13,10,8,0.65);
+  font-size: 0.93rem;
+  margin-bottom: 22px;
+}
+.modal-body label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(13,10,8,0.7);
+  margin-bottom: 6px;
+}
+.modal-body input, .modal-body select, .modal-body textarea {
+  width: 100%;
+  background: #fff;
+  border: 2px solid rgba(13,10,8,0.1);
+  color: var(--black);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus {
+  outline: none; border-color: var(--red);
+}
+.modal-body .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-body .row-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 14px; }
+.modal-summary {
+  background: #fff;
+  border: 2px solid rgba(13,10,8,0.08);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 22px;
+}
+.modal-summary .line {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  font-size: 0.95rem;
+}
+.modal-summary .line + .line { border-top: 1px dashed rgba(13,10,8,0.1); }
+.modal-summary .line .it { font-weight: 600; }
+.modal-summary .line .qt {
+  font-family: 'Archivo Black', sans-serif;
+  color: var(--red); font-size: 0.9rem;
+  font-weight: 400;
+}
+.payment-options {
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;
+}
+.payment-option {
+  border: 2px solid rgba(13,10,8,0.12);
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 14px;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fff;
+}
+.payment-option:hover { border-color: var(--yellow); }
+.payment-option.selected { border-color: var(--red); background: #fff5f4; }
+.payment-option .logo {
+  width: 50px; height: 50px;
+  background: var(--black);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--yellow);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+.payment-option.mope .logo { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); color: white; }
+.payment-option .info h5 {
+  font-weight: 800; font-size: 0.98rem;
+  margin-bottom: 3px;
+}
+.payment-option .info p { font-size: 0.85rem; color: rgba(13,10,8,0.6); margin: 0; }
+.payment-option .check {
+  margin-left: auto;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(13,10,8,0.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.payment-option.selected .check {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--cream);
+}
+.payment-option.selected .check::after { content: '✓'; font-size: 0.8rem; }
+
+.modal-actions {
+  display: flex; gap: 12px; margin-top: 8px;
+}
+.modal-actions button { flex: 1; justify-content: center; }
+.btn-back {
+  background: transparent;
+  color: var(--black);
+  border: 2px solid rgba(13,10,8,0.15);
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-back:hover { border-color: var(--black); }
+
+.mope-redirect {
+  text-align: center;
+  padding: 30px 10px;
+}
+.mope-spinner {
+  width: 70px; height: 70px;
+  border: 5px solid rgba(216,49,40,0.15);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.mope-redirect h4 { margin-bottom: 8px; font-size: 1.25rem; }
+.mope-redirect p { color: rgba(13,10,8,0.65); font-size: 0.95rem; }
+.success-check {
+  width: 80px; height: 80px;
+  background: var(--green);
+  border-radius: 50%;
+  margin: 0 auto 22px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream);
+  font-size: 2.2rem;
+  font-weight: 800;
+  animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+.success-id {
+  background: #fff;
+  border: 2px dashed rgba(13,10,8,0.15);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 18px 0;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 0.95rem;
+  color: var(--red);
+  letter-spacing: 1px;
+  word-break: break-all;
+  font-weight: 400;
+}
+
+/* ============ TOAST ============ */
+.toast {
+  position: fixed;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  background: var(--black);
+  color: var(--cream);
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  box-shadow: 0 10px 30px -8px rgba(0,0,0,0.4);
+  z-index: 4000;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast .ic {
+  width: 24px; height: 24px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+}
+
+/* ============ RESPONSIVE ============ */
+
+/* Tablet & smaller laptops */
+@media (max-width: 960px) {
+  .hero-inner, #about .about-grid, .shops-layout, .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .about-visual { max-width: 380px; margin: 0 auto; }
+  nav.topnav { padding: 12px 18px; }
+  nav.topnav ul {
+    position: fixed; top: 70px; left: 0; right: 0;
+    flex-direction: column;
+    background: var(--black);
+    padding: 22px;
+    border-bottom: 1px solid rgba(255,198,41,0.2);
+    transform: translateY(-150%);
+    transition: transform 0.3s;
+    gap: 18px;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+  nav.topnav ul.open { transform: translateY(0); }
+  .burger { display: block; }
+  section { padding: 70px 22px; }
+  .hero { padding: 100px 22px 60px; }
+  .hero-stats { gap: 28px; flex-wrap: wrap; }
+  #map { height: 420px; }
+  .contact-form .row-2 { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* Mobile portrait */
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  nav.topnav { padding: 10px 14px; }
+  nav.topnav .brand { font-size: 1.15rem; gap: 9px; }
+  nav.topnav .brand img { height: 38px; }
+  .cart-btn { width: 40px; height: 40px; }
+
+  section { padding: 60px 18px; }
+  .hero { padding: 90px 18px 50px; min-height: auto; }
+  .hero h1 { font-size: clamp(2.4rem, 11vw, 3.8rem); margin-bottom: 18px; }
+  .hero .badge { font-size: 0.78rem; padding: 7px 14px; margin-bottom: 22px; }
+  .hero p.lead { font-size: 1.02rem; margin-bottom: 26px; }
+  .hero .cta-row { flex-direction: column; align-items: stretch; gap: 10px; }
+  .hero .cta-row a { justify-content: center; padding: 14px 22px; font-size: 0.95rem; }
+  .hero-stats { gap: 22px; margin-top: 38px; }
+  .hero-stats .stat .num { font-size: 1.8rem; }
+  .hero-stats .stat .lbl { font-size: 0.7rem; letter-spacing: 1.2px; }
+  .hero-card { padding: 28px 22px; }
+  .hero-card .logo-big { max-width: 220px; }
+  .hero-card .tagline { font-size: 1.15rem; }
+  .hero-card .tagline small { font-size: 1.02rem; }
+  .sticker { width: 88px; height: 88px; font-size: 0.65rem; top: -14px; right: -6px; }
+
+  .section-title { font-size: clamp(1.85rem, 7.5vw, 2.6rem); margin-bottom: 14px; }
+  .section-sub { font-size: 0.98rem; margin-bottom: 36px; }
+  .eyebrow { font-size: 0.72rem; letter-spacing: 2.5px; }
+
+  .menu-filters { gap: 8px; margin-bottom: 28px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .menu-filters::-webkit-scrollbar { display: none; }
+  .menu-filters button { padding: 9px 18px; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; }
+  .menu-grid { grid-template-columns: 1fr; gap: 22px; }
+  .menu-item .body { padding: 20px 20px 22px; }
+  .menu-item h3 { font-size: 1.1rem; }
+  .menu-item p { font-size: 0.9rem; margin-bottom: 14px; }
+
+  #about .features { grid-template-columns: 1fr; gap: 14px; margin-top: 28px; }
+  #about p { font-size: 1rem; }
+
+  .shops-layout { gap: 26px; }
+  .shop-card { grid-template-columns: 100px 1fr; }
+  .shop-card .info { padding: 14px 16px; }
+  .shop-card h3 { font-size: 1rem; }
+  .shop-card .addr { font-size: 0.82rem; }
+  .shop-card .hours, .shop-card .tel { font-size: 0.78rem; }
+  #map { height: 380px; }
+
+  .faq-tabs { gap: 8px; margin-bottom: 26px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .faq-tabs::-webkit-scrollbar { display: none; }
+  .faq-tabs button { padding: 8px 16px; font-size: 0.82rem; white-space: nowrap; flex-shrink: 0; }
+  .faq-q { padding: 18px 20px; font-size: 0.95rem; }
+  .faq-q .plus { width: 28px; height: 28px; margin-left: 12px; }
+  .faq-item.open .faq-a { padding: 0 20px 20px; max-height: 700px; }
+  .faq-a { font-size: 0.92rem; padding: 0 20px; }
+
+  .contact-info .row { padding: 18px; gap: 14px; }
+  .contact-info .ic { width: 42px; height: 42px; font-size: 1.15rem; }
+  .contact-form { padding: 24px 22px; }
+  .contact-form label { font-size: 0.72rem; }
+  .contact-form input, .contact-form textarea, .contact-form select { font-size: 16px; padding: 13px 14px; }
+
+  /* Cart drawer full-width on mobile */
+  .cart-drawer { width: 100vw; }
+  .cart-head { padding: 18px 22px; }
+  .cart-head h3 { font-size: 1.15rem; }
+  .cart-body { padding: 16px 20px; }
+  .cart-line { grid-template-columns: 60px 1fr auto; gap: 12px; }
+  .cart-line .thumb { width: 60px; height: 60px; }
+  .cart-line .nm { font-size: 0.9rem; }
+  .cart-foot { padding: 18px 22px; }
+
+  /* Modal: take full viewport height, keep buttons reachable */
+  .modal-overlay { padding: 0; align-items: stretch; }
+  .modal {
+    border-radius: 0;
+    max-width: 100%;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-head { padding: 18px 22px; flex-shrink: 0; position: sticky; top: 0; z-index: 5; }
+  .modal-head h3 { font-size: 1.15rem; }
+  .modal-body { padding: 22px 20px 30px; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-body h4 { font-size: 1.05rem; }
+  .modal-body .sub { font-size: 0.88rem; margin-bottom: 18px; }
+  .modal-body .row-2, .modal-body .row-3 { grid-template-columns: 1fr; gap: 0; }
+  .modal-body input, .modal-body select, .modal-body textarea { font-size: 16px; padding: 13px 14px; } /* 16px prevents iOS zoom-on-focus */
+  .modal-actions { flex-direction: column-reverse; gap: 10px; }
+  .modal-actions button { width: 100%; padding: 14px 20px; }
+  .payment-option { padding: 14px; gap: 12px; }
+  .payment-option .logo { width: 44px; height: 44px; font-size: 0.78rem; }
+  .payment-option .info h5 { font-size: 0.93rem; }
+  .payment-option .info p { font-size: 0.8rem; }
+  .success-id { font-size: 0.85rem; padding: 12px; }
+
+  footer { padding: 44px 22px 26px; }
+  footer .smile-row { font-size: 1.15rem; }
+  footer .meta-row { font-size: 0.78rem; padding-top: 18px; }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  nav.topnav .brand span { display: none; } /* keep just the logo to save space */
+  .hero h1 { font-size: 2.1rem; letter-spacing: -1px; }
+  .hero-stats { gap: 16px; }
+  .hero-stats .stat .num { font-size: 1.55rem; }
+  .sticker { width: 78px; height: 78px; font-size: 0.6rem; }
+  .section-title { font-size: 1.65rem; }
+  .shop-card { grid-template-columns: 90px 1fr; }
+}
+
+/* Landscape phones — keep modal tappable */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero { min-height: auto; padding: 90px 22px 40px; }
+  .modal-head { position: sticky; top: 0; }
+}
+
+/* Touch device niceties */
+@media (hover: none) {
+  /* Disable hover-only transforms that "stick" on touch */
+  .menu-item:hover { transform: none; }
+  .shop-card:hover { transform: none; }
+  .btn-primary:hover, .btn-yellow:hover { transform: none; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="topnav">
+  <a href="#hero" class="brand">
+    <img src="https://files.catbox.moe/d5zo9y.png" alt="Wolly's">
+    <span>WOLLY'S</span>
+  </a>
+  <ul id="navlist">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#about">Over Ons</a></li>
+    <li><a href="#shops">Filialen</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#menu" class="order-btn">Bestel Nu</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" id="cartBtn" aria-label="Bekijk winkelwagen">
+      🛒
+      <span class="count" id="cartCount" style="display:none;">0</span>
+    </button>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="badge"><span class="dot"></span>Open vandaag · Vers gegrild sinds vanochtend</div>
+      <h1>
+        Home of<br>
+        the <span class="red">Wolly</span><span class="underline"><span class="yellow">burger</span></span>
+      </h1>
+      <p class="lead">
+        Surinaamse snackbar met een open keuken — verse broodjes, sappige burgers,
+        krokante patat shoarma en wraps met een tropisch tintje.
+      </p>
+      <div class="cta-row">
+        <a href="#menu" class="btn-primary">Bekijk het menu →</a>
+        <a href="#shops" class="btn-ghost">Vind een filiaal</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="num">3</div><div class="lbl">Locaties</div></div>
+        <div class="stat"><div class="num">25+</div><div class="lbl">Menu Items</div></div>
+        <div class="stat"><div class="num">★ 4.2</div><div class="lbl">Gemiddeld</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="sticker">HOME OF<br>THE WOLLY<br>BURGER</div>
+      <div class="hero-card">
+        <img src="https://files.catbox.moe/d5zo9y.png" class="logo-big" alt="Wolly's logo">
+        <div class="tagline">
+          KEEP SMILING
+          <small>vers · lokaal · met liefde gemaakt</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MENU ============ -->
+<section id="menu">
+  <div class="container">
+    <div class="eyebrow">Het Menu</div>
+    <h2 class="section-title">Vers van de keuken</h2>
+    <p class="section-sub">Van de wereldberoemde Wollyburger tot onze krokante patat shoarma — kies je favoriet en bestel online.</p>
+
+    <div class="menu-filters">
+      <button class="active" data-cat="all">Alles</button>
+      <button data-cat="burgers">Burgers</button>
+      <button data-cat="wolly">Wolly Burgers</button>
+      <button data-cat="broodjes">Broodjes</button>
+      <button data-cat="patat">Patat</button>
+      <button data-cat="wraps">Wraps</button>
+      <button data-cat="drinks">Drinks</button>
+    </div>
+
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about">
+  <div class="container about-grid">
+    <div>
+      <div class="eyebrow">Ons Verhaal</div>
+      <h2 class="section-title">Een glimlach op<br>elke <span class="accent">broodje</span></h2>
+      <p>
+        Wolly's is een echte Surinaamse snackbar met een open keuken-concept. Wat ooit
+        begon als één spot, is uitgegroeid tot drie drukke locaties in en rond Paramaribo
+        waar generaties Surinamers samenkomen voor één ding: lekker eten met een tropisch tintje.
+      </p>
+      <p>
+        Onze specialiteit is de legendarische <strong>Wollyburger</strong> — maar of je nu
+        komt voor een broodje shoarma, patat met pindasaus, of een verse wrap, alles wordt
+        ter plekke bereid. Vers, snel, en met dezelfde glimlach als ons logo.
+      </p>
+      <div class="features">
+        <div class="feature">
+          <div class="icon">🔥</div>
+          <h4>Open Keuken</h4>
+          <p>Kijk mee terwijl je eten wordt bereid.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">🌶️</div>
+          <h4>Surinaams Tintje</h4>
+          <p>Lokale kruiden en sauzen, vers gemaakt.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">⚡</div>
+          <h4>Snel & Vers</h4>
+          <p>Geen voorgebakken troep. Alles à la minute.</p>
+        </div>
+        <div class="feature">
+          <div class="icon">😄</div>
+          <h4>Keep Smiling</h4>
+          <p>Onze gele lach is meer dan een logo.</p>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual">
+      <img src="https://files.catbox.moe/d5zo9y.png" class="logo-art" alt="Wolly's logo">
+    </div>
+  </div>
+</section>
+
+<!-- ============ SHOPS ============ -->
+<section id="shops">
+  <div class="container">
+    <div class="eyebrow">Onze Filialen</div>
+    <h2 class="section-title">Drie spots in Paramaribo</h2>
+    <p class="section-sub">Klik op een filiaal om hem op de kaart te bekijken — of klik direct op een marker.</p>
+
+    <div class="shops-layout">
+      <div class="shops-list" id="shopsList"></div>
+      <div id="map"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="container">
+    <div class="eyebrow">Veelgestelde Vragen</div>
+    <h2 class="section-title">Goed om te weten</h2>
+    <p class="section-sub">Alles over onze burgers, broodjes, wraps en hoe wij werken.</p>
+
+    <div class="faq-tabs">
+      <button class="active" data-tab="algemeen">Algemeen</button>
+      <button data-tab="burgers">Over Burgers</button>
+      <button data-tab="broden">Over Broden</button>
+      <button data-tab="wraps">Over Wraps</button>
+    </div>
+
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="contact">
+  <div class="container">
+    <div class="eyebrow">Neem Contact Op</div>
+    <h2 class="section-title">Vraag, bestelling of feedback?</h2>
+    <p class="section-sub" style="color: rgba(255,247,232,0.7);">We horen graag van je. Bel een filiaal direct of stuur ons een berichtje hieronder.</p>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="row">
+          <div class="ic">📍</div>
+          <div>
+            <h4>Hoofdkantoor</h4>
+            <p>Latourweg 59b, Paramaribo, Suriname</p>
+            <p>Tel: <a href="tel:+597433434">+597 433-434</a> (Ma–Vr 08:30–15:30)</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="ic">📞</div>
+          <div>
+            <h4>Filialen</h4>
+            <p>Latour: <a href="tel:+597486500">+597 486-500</a></p>
+            <p>Zorg & Hoop: <a href="tel:+597401214">+597 401-214</a></p>
+            <p>Centrum: <a href="tel:+597422592">+597 422-592</a></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="ic">✉️</div>
+          <div>
+            <h4>Email</h4>
+            <p><a href="mailto:info@wollys.com">info@wollys.com</a></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="ic">💳</div>
+          <div>
+            <h4>Online Betalen</h4>
+            <p>We accepteren Mopé Wallet voor online bestellingen — veilig en snel.</p>
+          </div>
+        </div>
+      </div>
+
+      <form class="contact-form" id="contactForm">
+        <div class="row-2">
+          <div>
+            <label>Naam</label>
+            <input type="text" name="name" required>
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" name="email" required>
+          </div>
+        </div>
+        <label>Onderwerp</label>
+        <input type="text" name="subject">
+        <label>Bericht</label>
+        <textarea name="message" required></textarea>
+        <button type="submit" class="btn-primary">Verstuur bericht →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="footer-inner">
+    <img src="https://files.catbox.moe/d5zo9y.png" class="flogo" alt="Wolly's">
+    <div class="smile-row">"Keep smiling — en blijf eten."</div>
+    <div class="meta-row">
+      © 2026 Wolly's N.V. · Paramaribo, Suriname · Home of the Wollyburger ®
+    </div>
+  </div>
+</footer>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Je Bestelling</h3>
+    <button class="cart-close" id="cartClose" aria-label="Sluit">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot">
+    <div class="item-count">
+      <span>Aantal items</span>
+      <span id="cartTotal">0</span>
+    </div>
+    <button class="btn-primary" id="checkoutBtn">Afrekenen →</button>
+  </div>
+</aside>
+
+<!-- ============ ORDER MODAL ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Bestelling Plaatsen</h3>
+      <button id="modalClose" aria-label="Sluit">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast"><span class="ic">✓</span><span id="toastMsg">Toegevoegd</span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+// ============ MENU DATA ============
+const menuItems = [
+  // Burgers
+  { id: 'kip-burger', cat: 'burgers', name: 'Kip Burger',
+    desc: 'Kipschijf met sla, uien, augurken, home-made mayonaise en Surinaamse ketchup.',
+    img: 'https://files.catbox.moe/wfgc4i.jpg' },
+  { id: 'vis-cheese', cat: 'burgers', name: 'Vis Burger Cheese',
+    desc: 'Krokante visschijf met smeltkaas, verse rauwkost en huissauzen.',
+    img: 'https://files.catbox.moe/0x1tay.jpg' },
+  { id: 'kip-plus', cat: 'burgers', name: 'Kip Plus Burger',
+    desc: 'Kipschijf met kaas én spek, standaard rauwkost en huissauzen.',
+    img: 'https://files.catbox.moe/oey4ui.jpg' },
+  { id: 'beef-plus', cat: 'burgers', name: 'Beef Plus Burger',
+    desc: 'Beefschijf met kaas én spek, sla, uien, augurken en huissauzen.',
+    img: 'https://files.catbox.moe/3u0n6m.jpg' },
+  { id: 'smokey', cat: 'burgers', name: 'Smokey Beef Plus Burger', tag: 'POPULAIR',
+    desc: 'Beefschijf met krokante uiensnippers, BBQ-saus en mayonaise.',
+    img: 'https://files.catbox.moe/ry0t5k.jpg' },
+  { id: 'shoarma-egg', cat: 'burgers', name: 'Shoarma Egg Plus Burger',
+    desc: 'Shoarmaschijf met ei, kaas en spek — een complete burger.',
+    img: 'https://files.catbox.moe/sdzpp9.jpg' },
+
+  // Wolly Burgers
+  { id: 'wolly-beef', cat: 'wolly', name: 'Wolly Beef Burger', tag: 'SIGNATURE',
+    desc: 'Normal beef burger + spek + patat + sauzen. De legende waar wij om bekend staan.',
+    img: 'https://files.catbox.moe/6ui7n4.jpg' },
+  { id: 'wolly-kip-plus', cat: 'wolly', name: 'Wolly Kip Plus Burger',
+    desc: 'Wollyburger met kipschijf, kaas, spek, rauwkost, sauzen en een portie patat.',
+    img: 'https://files.catbox.moe/aayln1.jpg' },
+  { id: 'double-wolly', cat: 'wolly', name: 'Double Wolly Shoarma',
+    desc: '2x shoarmaschijf + 2x kaas EN spek + 2x rauwkost + sauzen + patat. Voor de echte honger.',
+    img: 'https://files.catbox.moe/uo9ucr.jpg' },
+
+  // Broodjes
+  { id: 'br-shoarma', cat: 'broodjes', name: 'Broodje Shoarma',
+    desc: 'Vers gegrilde shoarma op uniek Wolly\'s brood met standaard rauwkost en sauzen.', art: 'sandwich', bg: '#8b5a2b' },
+  { id: 'br-pom-kip', cat: 'broodjes', name: 'Broodje Pom Kip',
+    desc: 'Surinaamse klassieker — pom kip stoofschotel in een vers broodje.', art: 'sandwich', bg: '#c87530' },
+  { id: 'br-bangbang', cat: 'broodjes', name: 'Broodje Gerookte Bangbang',
+    desc: 'Gerookte vis met sla en pittige saus — pure Surinaamse smaak.', art: 'sandwich', bg: '#5a7a4a' },
+  { id: 'br-zalm', cat: 'broodjes', name: 'Broodje Zalm',
+    desc: 'Verse zalm met sla, uien en keuze uit mayo, ketchup of picalilly.', art: 'sandwich', bg: '#d97a5a' },
+  { id: 'br-crispy', cat: 'broodjes', name: 'Broodje Crispy Steak',
+    desc: 'Knapperige steak met rauwkost en onze huissauzen.', art: 'sandwich', bg: '#7a3a1a' },
+  { id: 'br-gezond', cat: 'broodjes', name: 'Broodje Gezond',
+    desc: 'Kaas, ei, ham, sla, tomaat en augurken — een complete maaltijd.', art: 'sandwich', bg: '#5a8a4a' },
+
+  // Patat
+  { id: 'pat-shoarma', cat: 'patat', name: 'Patat Shoarma', tag: 'POPULAIR',
+    desc: 'Volle portie patat met malse shoarma en alle sauzen — pinda, knoflook, sambal.', art: 'fries', bg: '#f0a800' },
+  { id: 'pat-nuggets', cat: 'patat', name: 'Patat Nuggets',
+    desc: 'Patat met krokante kipnuggets en je favoriete sauzen.', art: 'fries', bg: '#ffc629' },
+  { id: 'pat-speciaal', cat: 'patat', name: 'Patat Speciaal',
+    desc: 'Klassieke patat met mayo, ketchup, ui en sambal.', art: 'fries', bg: '#e8a020' },
+
+  // Wraps
+  { id: 'wr-supreme', cat: 'wraps', name: 'Wolly\'s Supreme Wrap', tag: 'SIGNATURE',
+    desc: 'Wrap + shoarma + kaas + standaard rauwkost en sauzen.', art: 'wrap', bg: '#b8855a' },
+  { id: 'wr-gezond', cat: 'wraps', name: 'Gezond Wrap',
+    desc: 'Wrap + gekookt ei + kaas + extra rauwkost en sauzen.', art: 'wrap', bg: '#a87545' },
+  { id: 'wr-zalm', cat: 'wraps', name: 'Zalm Wrap',
+    desc: 'Wrap + Surinaamse zalm + standaard rauwkost en sauzen.', art: 'wrap', bg: '#c88a6a' },
+
+  // Drinks
+  { id: 'dr-iced-coffee', cat: 'drinks', name: 'Iced Coffee',
+    desc: 'Gekoelde koffie met melk en ijs — perfect voor warme dagen.', art: 'drink', bg: '#4a3424' },
+  { id: 'dr-sap', cat: 'drinks', name: 'Verse Sap',
+    desc: 'Tropische vruchtensappen — markoesa, sinaasappel of ananas.', art: 'drink', bg: '#f08020' },
+  { id: 'dr-frisdrank', cat: 'drinks', name: 'Frisdrank',
+    desc: 'Cola, Fanta, Sprite — koud geserveerd.', art: 'drink', bg: '#8b3024' }
+];
+
+// SVG fallback illustrations
+function svgArt(type, bg) {
+  const arts = {
+    sandwich: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="${bg}"/>
+      <ellipse cx="100" cy="130" rx="80" ry="6" fill="#000" opacity="0.2"/>
+      <path d="M 25 95 Q 30 70 60 65 L 140 65 Q 170 70 175 95 L 175 110 Q 100 122 25 110 Z" fill="#d49a4a"/>
+      <path d="M 30 95 Q 35 75 62 72 L 138 72 Q 165 75 170 95 L 168 105 Q 100 115 32 105 Z" fill="#e8b870"/>
+      <path d="M 32 88 Q 50 80 100 82 Q 150 80 168 88 L 168 95 Q 100 100 32 95 Z" fill="#7a3a1a"/>
+      <path d="M 28 90 Q 38 78 48 88 Q 58 76 68 88 Q 78 78 88 88 Q 98 76 108 88 Q 118 78 128 88 Q 138 76 148 88 Q 158 78 168 88 Q 172 84 172 90 L 30 90 Z" fill="#5a9a3a" opacity="0.85"/>
+      <path d="M 25 78 Q 30 55 60 50 L 140 50 Q 170 55 175 78 L 175 88 L 25 88 Z" fill="#c88a3a"/>
+      <path d="M 30 78 Q 35 60 62 56 L 138 56 Q 165 60 170 78 L 170 85 L 30 85 Z" fill="#d99850"/>
+      <ellipse cx="65" cy="64" rx="1.5" ry="2.5" fill="#5a3010"/>
+      <ellipse cx="90" cy="60" rx="1.5" ry="2.5" fill="#5a3010"/>
+      <ellipse cx="115" cy="65" rx="1.5" ry="2.5" fill="#5a3010"/>
+      <ellipse cx="135" cy="62" rx="1.5" ry="2.5" fill="#5a3010"/>
+    </svg>`,
+    fries: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="${bg}"/>
+      <path d="M 55 70 L 145 70 L 138 135 L 62 135 Z" fill="#d83128"/>
+      <path d="M 55 70 L 145 70 L 142 80 L 58 80 Z" fill="#a31f17"/>
+      <text x="100" y="115" text-anchor="middle" font-family="Archivo Black, sans-serif" font-size="22" fill="#ffc629" font-weight="900">W</text>
+      <rect x="62" y="30" width="6" height="50" fill="#f0c060" rx="1"/>
+      <rect x="72" y="22" width="6" height="58" fill="#f5c870" rx="1"/>
+      <rect x="82" y="18" width="6" height="62" fill="#f0c060" rx="1"/>
+      <rect x="92" y="14" width="6" height="66" fill="#f8d080" rx="1"/>
+      <rect x="102" y="20" width="6" height="60" fill="#f0c060" rx="1"/>
+      <rect x="112" y="16" width="6" height="64" fill="#f5c870" rx="1"/>
+      <rect x="122" y="26" width="6" height="54" fill="#f0c060" rx="1"/>
+      <rect x="132" y="32" width="6" height="48" fill="#f5c870" rx="1"/>
+      <rect x="63" y="32" width="1.5" height="44" fill="#fff7c8" opacity="0.5"/>
+      <rect x="93" y="16" width="1.5" height="60" fill="#fff7c8" opacity="0.5"/>
+      <rect x="113" y="18" width="1.5" height="58" fill="#fff7c8" opacity="0.5"/>
+      <rect x="133" y="34" width="1.5" height="42" fill="#fff7c8" opacity="0.5"/>
+    </svg>`,
+    wrap: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="${bg}"/>
+      <ellipse cx="100" cy="130" rx="75" ry="6" fill="#000" opacity="0.2"/>
+      <path d="M 30 75 Q 40 35 100 30 Q 160 35 170 75 Q 165 115 100 120 Q 35 115 30 75 Z" fill="#e8b870"/>
+      <path d="M 50 65 Q 100 50 150 65" stroke="#c89858" stroke-width="2" fill="none" opacity="0.6"/>
+      <path d="M 45 90 Q 100 80 155 90" stroke="#c89858" stroke-width="2" fill="none" opacity="0.6"/>
+      <path d="M 80 28 L 120 28 L 120 122 L 80 122 Z" fill="#d8a060"/>
+      <path d="M 82 32 L 118 32 L 118 118 L 82 118 Z" fill="#7a3a1a"/>
+      <circle cx="92" cy="50" r="3" fill="#5a9a3a"/>
+      <circle cx="105" cy="60" r="2.5" fill="#c83020"/>
+      <circle cx="95" cy="75" r="3" fill="#fff7e8"/>
+      <circle cx="108" cy="85" r="2.5" fill="#5a9a3a"/>
+      <circle cx="92" cy="98" r="3" fill="#c83020"/>
+      <circle cx="105" cy="108" r="2.5" fill="#5a9a3a"/>
+      <path d="M 80 28 L 84 28 L 84 122 L 80 122 Z" fill="#fff7e8" opacity="0.3"/>
+    </svg>`,
+    drink: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="${bg}"/>
+      <ellipse cx="100" cy="135" rx="35" ry="4" fill="#000" opacity="0.25"/>
+      <path d="M 70 30 L 130 30 L 125 130 L 75 130 Z" fill="#fff7e8"/>
+      <path d="M 70 30 L 130 30 L 128 38 L 72 38 Z" fill="#e8e0c8"/>
+      <path d="M 74 45 L 126 45 L 122 125 L 78 125 Z" fill="#d83128" opacity="0.85"/>
+      <rect x="82" y="52" width="14" height="14" fill="#fff7e8" opacity="0.5" transform="rotate(8 89 59)"/>
+      <rect x="100" y="48" width="14" height="14" fill="#fff7e8" opacity="0.6" transform="rotate(-12 107 55)"/>
+      <rect x="92" y="68" width="14" height="14" fill="#fff7e8" opacity="0.4" transform="rotate(20 99 75)"/>
+      <rect x="108" y="72" width="12" height="12" fill="#fff7e8" opacity="0.5" transform="rotate(-5 114 78)"/>
+      <rect x="105" y="15" width="6" height="40" fill="#ffc629" transform="rotate(15 108 35)"/>
+      <text x="100" y="105" text-anchor="middle" font-family="Archivo Black, sans-serif" font-size="22" fill="#ffc629" font-weight="900">W</text>
+    </svg>`
+  };
+  return arts[type] || '';
+}
+
+function itemImage(m) {
+  if (m.img) return `<img src="${m.img}" alt="${m.name}" loading="lazy">`;
+  return svgArt(m.art, m.bg);
+}
+
+const grid = document.getElementById('menuGrid');
+function renderMenu(filter = 'all') {
+  grid.innerHTML = '';
+  menuItems
+    .filter(m => filter === 'all' || m.cat === filter)
+    .forEach((m, i) => {
+      const el = document.createElement('div');
+      el.className = 'menu-item';
+      el.style.animation = `fadeUp 0.4s ${i * 0.04}s both`;
+      el.innerHTML = `
+        <div class="img-wrap">
+          ${m.tag ? `<span class="tag ${m.tag === 'SIGNATURE' ? 'signature' : ''}">${m.tag}</span>` : ''}
+          ${itemImage(m)}
+        </div>
+        <div class="body">
+          <h3>${m.name}</h3>
+          <p>${m.desc}</p>
+          <button class="add-btn" data-id="${m.id}"><span class="plus">+</span> Toevoegen</button>
+        </div>`;
+      grid.appendChild(el);
+    });
+  document.querySelectorAll('.add-btn').forEach(b => {
+    b.addEventListener('click', () => addToCart(b.dataset.id));
+  });
+}
+renderMenu();
+
+document.querySelectorAll('.menu-filters button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.menu-filters button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMenu(btn.dataset.cat);
+  });
+});
+
+// ============ CART ============
+let cart = [];
+function addToCart(id) {
+  const ex = cart.find(c => c.id === id);
+  if (ex) ex.qty++;
+  else cart.push({ id, qty: 1 });
+  updateCart();
+  const item = menuItems.find(m => m.id === id);
+  showToast(`${item.name} toegevoegd`);
+}
+function updateCart() {
+  const count = cart.reduce((s, c) => s + c.qty, 0);
+  const cc = document.getElementById('cartCount');
+  cc.textContent = count;
+  cc.style.display = count > 0 ? 'flex' : 'none';
+  document.getElementById('cartTotal').textContent = count + ' ' + (count === 1 ? 'item' : 'items');
+  const body = document.getElementById('cartBody');
+  if (cart.length === 0) {
+    body.innerHTML = `<div class="cart-empty"><div class="big-emoji">🛒</div><p>Je winkelwagen is nog leeg.<br>Voeg lekkers toe vanuit het menu!</p></div>`;
+    return;
+  }
+  body.innerHTML = '';
+  cart.forEach(c => {
+    const m = menuItems.find(mi => mi.id === c.id);
+    const line = document.createElement('div');
+    line.className = 'cart-line';
+    line.innerHTML = `
+      <div class="thumb">${itemImage(m)}</div>
+      <div>
+        <div class="nm">${m.name}</div>
+        <div class="qty">
+          <button data-act="dec" data-id="${c.id}">−</button>
+          <span>${c.qty}</span>
+          <button data-act="inc" data-id="${c.id}">+</button>
+        </div>
+      </div>
+      <button class="rm" data-act="rm" data-id="${c.id}" aria-label="Verwijder">✕</button>`;
+    body.appendChild(line);
+  });
+  body.querySelectorAll('button[data-act]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id, act = b.dataset.act;
+      const it = cart.find(c => c.id === id);
+      if (act === 'inc') it.qty++;
+      else if (act === 'dec') { it.qty--; if (it.qty <= 0) cart = cart.filter(c => c.id !== id); }
+      else if (act === 'rm') cart = cart.filter(c => c.id !== id);
+      updateCart();
+    });
+  });
+}
+updateCart();
+
+const cartDrawer = document.getElementById('cartDrawer');
+const cartOverlay = document.getElementById('cartOverlay');
+function openCart() { cartDrawer.classList.add('open'); cartOverlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeCart() { cartDrawer.classList.remove('open'); cartOverlay.classList.remove('open'); if (!modal.classList.contains('open')) document.body.style.overflow = ''; }
+document.getElementById('cartBtn').addEventListener('click', openCart);
+document.getElementById('cartClose').addEventListener('click', closeCart);
+cartOverlay.addEventListener('click', closeCart);
+
+// ============ TOAST ============
+let toastTimer;
+function showToast(msg) {
+  document.getElementById('toastMsg').textContent = msg;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============ SHOPS ============
+const shops = [
+  {
+    name: "Wolly's Latour",
+    addr: 'Latourweg 59b, Paramaribo',
+    tel: '+597 486-500',
+    hours: 'Ma–Do: 08:00–22:00 · Vr: 08:00–23:00 · Za: 09:00–23:00',
+    short: 'Ma–Do: 08:00–22:00',
+    lat: 5.7881751, lng: -55.181639,
+    img: 'https://files.catbox.moe/h4bjaw.jpg'
+  },
+  {
+    name: "Wolly's Zorg & Hoop",
+    addr: 'Tuberoosstraat 2, Paramaribo',
+    tel: '+597 401-214',
+    hours: 'Ma–Vr: 08:00–22:00 · Za: 08:00–21:00',
+    short: 'Ma–Vr: 08:00–22:00',
+    lat: 5.8148994, lng: -55.183629,
+    img: 'https://files.catbox.moe/tln46a.jpg'
+  },
+  {
+    name: "Wolly's Centrum",
+    addr: 'Steenbakkerijstraat 41, Paramaribo',
+    tel: '+597 422-592',
+    hours: 'Ma–Za: 08:30–22:00',
+    short: 'Ma–Za: 08:30–22:00',
+    lat: 5.8323684, lng: -55.160710,
+    img: 'https://files.catbox.moe/8w2w7e.jpg'
+  }
+];
+
+const shopsList = document.getElementById('shopsList');
+shops.forEach((s, i) => {
+  const el = document.createElement('div');
+  el.className = 'shop-card' + (i === 0 ? ' active' : '');
+  el.dataset.idx = i;
+  el.innerHTML = `
+    <div class="photo"><img src="${s.img}" alt="${s.name}" loading="lazy"></div>
+    <div class="info">
+      <h3>${s.name}</h3>
+      <div class="addr">${s.addr}</div>
+      <div class="hours">${s.short}</div>
+      <div class="tel">${s.tel}</div>
+    </div>`;
+  shopsList.appendChild(el);
+});
+
+const map = L.map('map', {
+  scrollWheelZoom: false,
+  tap: true,
+  touchZoom: true,
+  dragging: !L.Browser.mobile || true
+}).setView([5.812, -55.175], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+const markers = [];
+shops.forEach((s, i) => {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div class="wolly-marker"><div class="pin">W</div><div class="tail"></div></div>`,
+    iconSize: [44, 60],
+    iconAnchor: [22, 56],
+    popupAnchor: [0, -56]
+  });
+  const m = L.marker([s.lat, s.lng], { icon }).addTo(map);
+  m.bindPopup(`<b>${s.name}</b>${s.addr}<br><br>📞 ${s.tel}<br>🕒 ${s.hours}`);
+  m.on('click', () => activateShop(i));
+  markers.push(m);
+});
+const group = L.featureGroup(markers);
+map.fitBounds(group.getBounds().pad(0.3));
+function activateShop(i) {
+  document.querySelectorAll('.shop-card').forEach((c, idx) => {
+    c.classList.toggle('active', idx === i);
+  });
+  map.flyTo([shops[i].lat, shops[i].lng], 15, { duration: 0.8 });
+  markers[i].openPopup();
+}
+document.querySelectorAll('.shop-card').forEach(card => {
+  card.addEventListener('click', () => activateShop(+card.dataset.idx));
+});
+
+// ============ FAQ ============
+const faqs = {
+  algemeen: [
+    { q: 'Vaak genoeg wil ik mijn eigen samenstelling doen wanneer ik een product wil bestellen bij Wolly\'s. Is dit mogelijk?',
+      a: 'Indien Wolly\'s de producten heeft, is het bijna altijd mogelijk om uw product samen te stellen. Vraag het gerust aan de kassierster.' },
+    { q: 'Ik zou graag bij Wolly\'s willen werken. Zijn er vacatures open?',
+      a: 'Bij Wolly\'s bent u altijd welkom. U kunt altijd uw persoonlijke gegevens indienen bij elk Wolly\'s filiaal. Indien u voor een management functie solliciteert, kunt u een sollicitatiebrief en Curriculum Vitae afgeven bij elk gewenst filiaal.' },
+    { q: 'Waarom is er geen delivery service bij Wolly\'s?',
+      a: 'De producten van Wolly\'s zijn fast food items. Als het eten te lang staat, gaat de kwaliteit al gauw achteruit. Wolly\'s heeft na vele verzoeken toch eten bezorgd voor klanten. Helaas is uit onderzoek gebleken dat indien het eten langer dan een half uur over straat blijft, de kwaliteit inderdaad achteruit gaat. Wolly\'s kiest voor kwaliteit en heeft toen besloten de delivery service stop te zetten.' },
+    { q: 'Ik wil graag een klacht of mening doorgeven aan het Management van Wolly\'s. Waar kan ik deze kwijt?',
+      a: 'Elk filiaal heeft een manager, en u kunt dus bij elk filiaal terecht. Indien u de directie wilt spreken kunt bellen naar het hoofdkantoor op het tel. nr. 433434 (maandag t/m vrijdag 08.30u – 15.30u), of in een dichte enveloppe uw klacht doorgeven bij elk Wolly\'s filiaal.' }
+  ],
+  burgers: [
+    { q: 'Wat is een burger?',
+      a: 'Een burger heeft: een hamburgerbol + een burgerschijf + rauwkost + sauzen.' },
+    { q: 'Uit welke burgerschijven kan men kiezen bij Wolly\'s?',
+      a: 'Er zijn 5 verschillende burgerschijven bij Wolly\'s: beefschijf (rund), kipschijf, visschijf, shoarmaschijf (kip gekruid met shoarmakruiden), veggieschijf (groenten).' },
+    { q: 'Welke standaard rauwkost krijgt een burger?',
+      a: 'Een burger bij Wolly\'s krijgt standaard: sla, uien en augurken. U mag altijd vragen naar tomaat, maar wij hebben dit niet als standaard omdat vele Surinamers tomaat niet lusten. U krijgt gratis tomaat als u dit bij de kassa doorgeeft.' },
+    { q: 'Welke standaard sauzen krijgt een burger?',
+      a: 'Een burger bij Wolly\'s krijgt standaard: Wolly\'s home-made mayonaise en Surinaamse ketchup.' },
+    { q: 'Wat is het verschil tussen een Normal burger, een Cheeseburger, en een PLUS burger?',
+      a: 'Normal burger: hamburgerbol + burgerschijf + rauwkost + sauzen. Cheeseburger: hamburgerbol + burgerschijf + kaas + rauwkost + sauzen. PLUS burger: hamburgerbol + burgerschijf + kaas + spek + rauwkost + sauzen.' },
+    { q: 'Wat is dan een eggburger?',
+      a: 'Indien u een ei wenst op uw burger, kunt u dit bij de kassa aangeven. U heeft dan een eggburr of eggburger variant besteld.' },
+    { q: 'Wat is het verschil tussen een Normal burger en een Wollyburger?',
+      a: 'Een Wollyburger: Normal burger + kaas / spek + patat + rauwkost + sauzen. De Wollyburger BEEF krijgt standaard spek, alle andere Wollyburgers krijgen standaard kaas. Natuurlijk mag u ook bij de kassa doorgeven of u kaas of spek wenst op uw Wollyburger.' },
+    { q: 'Welke sauzen krijgt een Wollyburger standaard?',
+      a: 'Een Wollyburger krijgt op de burger standaard onze home-made mayonaise en Surinaamse ketchup. De patat die u krijgt bij de Wollyburger krijgt standaard onze home-made mayonaise, Surinaamse ketchup en Surinaamse pindasaus.' },
+    { q: 'Wat is het verschil tussen een Normal Wolly, een Wolly Plus en een Double Wolly?',
+      a: 'Normal Wolly: bol + schijf + kaas of spek + rauwkost + sauzen + patat. Wolly PLUS: bol + schijf + kaas EN spek + rauwkost + sauzen + extra patat. Double Wolly: bol + 2 schijven + 2x kaas EN spek + 2x rauwkost + 2x sauzen + patat. (Dit is dus een Wollyburger maar dan met dubbelbelegde schijven.)' },
+    { q: 'Is een Wolly Shoarma hetzelfde als een patat shoarma?',
+      a: 'Nee, een patat shoarma is een patat item en een Wolly shoarma is een burger met patat. Patat Shoarma: een volle portie patat + shoarma. Wolly Shoarma: een hamburgerbol + shoarmaschijf + standaard rauwkost en sauzen.' }
+  ],
+  broden: [
+    { q: 'Ik heb nog nooit brood zoals die van Wolly\'s geproefd, wat voor brood is het?',
+      a: 'Inderdaad is het Wolly\'s brood uniek in zijn soort. Deze wordt speciaal voor Wolly\'s gebakken. De smaak van het deeg is een mix van een stokbrood en een SUB.' },
+    { q: 'Wat krijgt een broodje standaard?',
+      a: 'Een broodje bij Wolly\'s: brood + beleg naar keus + standaard rauwkost + standaard sauzen.' },
+    { q: 'Wat voor rauwkost krijgt een brood standaard?',
+      a: 'Een brood krijgt standaard sla, uien en augurken. U mag altijd vragen naar tomaat, maar wij hebben dit niet als standaard omdat vele Surinamers tomaat niet lusten. U krijgt gratis tomaat als u dit bij de kassa doorgeeft.' },
+    { q: 'Welke sauzen krijgt een brood standaard?',
+      a: 'Een brood krijgt standaard: Wolly\'s home-made mayonaise en Surinaamse ketchup. Bij brood kroket en brood zalm mag u ook kiezen voor picalilly. U kunt hiernaar vragen bij de kassierster.' }
+  ],
+  wraps: [
+    { q: 'Wat is een wrap?',
+      a: 'Een wrap lijkt op een roti pannekoek. Zoals de rotiplaat speciale kruiden heeft, zo ook heeft de wrap plaat zijn unieke kruiden.' },
+    { q: 'Wat is een Wolly\'s Supreme Wrap?',
+      a: 'Een Wolly\'s Supreme Wrap: Wrap + Shoarma + Kaas + Standaard Rauwkost + Standaard Sauzen.' },
+    { q: 'Wat is een Gezond Wrap?',
+      a: 'Een Gezond Wrap: Wrap + Gekookt Ei + Kaas + Extra Rauwkost + Extra Sauzen.' },
+    { q: 'Wat is een Zalm Wrap?',
+      a: 'Een Zalm Wrap: Wrap + Surinaamse Zalm + Standaard Rauwkost + Standaard Sauzen.' }
+  ]
+};
+
+const faqList = document.getElementById('faqList');
+function renderFaq(tab) {
+  faqList.innerHTML = '';
+  faqs[tab].forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'faq-item';
+    el.innerHTML = `
+      <div class="faq-q">${f.q}<span class="plus">+</span></div>
+      <div class="faq-a"><p>${f.a}</p></div>`;
+    el.querySelector('.faq-q').addEventListener('click', () => el.classList.toggle('open'));
+    faqList.appendChild(el);
+  });
+}
+renderFaq('algemeen');
+document.querySelectorAll('.faq-tabs button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.faq-tabs button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderFaq(b.dataset.tab);
+  });
+});
+
+// ============ MOBILE NAV ============
+document.getElementById('burger').addEventListener('click', () => {
+  document.getElementById('navlist').classList.toggle('open');
+});
+document.querySelectorAll('#navlist a').forEach(a => {
+  a.addEventListener('click', () => document.getElementById('navlist').classList.remove('open'));
+});
+
+// ============ CONTACT FORM ============
+document.getElementById('contactForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Verstuurd!';
+  btn.style.background = 'var(--green)';
+  e.target.reset();
+  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2400);
+});
+
+// ============ ORDER / CHECKOUT FLOW ============
+// Surinamese districts
+const districten = [
+  'Paramaribo','Wanica','Nickerie','Coronie','Saramacca','Commewijne',
+  'Marowijne','Para','Brokopondo','Sipaliwini'
+];
+
+let checkoutState = { step: 1, customer: {}, payment: 'mope', paymentId: null };
+const modal = document.getElementById('modalOverlay');
+const modalBody = document.getElementById('modalBody');
+const modalTitle = document.getElementById('modalTitle');
+
+function openModal() { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal() { modal.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  if (cart.length === 0) { showToast('Je winkelwagen is leeg'); return; }
+  closeCart();
+  checkoutState = { step: 1, customer: {}, payment: 'mope', paymentId: null };
+  openModal();
+  renderStep();
+});
+
+function stepperHTML() {
+  const s = checkoutState.step;
+  return `<div class="stepper">
+    <div class="step-dot ${s >= 1 ? (s > 1 ? 'done' : 'active') : ''}"></div>
+    <div class="step-dot ${s >= 2 ? (s > 2 ? 'done' : 'active') : ''}"></div>
+    <div class="step-dot ${s >= 3 ? (s > 3 ? 'done' : 'active') : ''}"></div>
+    <div class="step-dot ${s >= 4 ? 'active' : ''}"></div>
+  </div>`;
+}
+
+function renderStep() {
+  const s = checkoutState.step;
+  if (s === 1) renderStep1();
+  else if (s === 2) renderStep2();
+  else if (s === 3) renderStep3();
+  else if (s === 4) renderStep4();
+}
+
+// STEP 1: Customer + Address
+function renderStep1() {
+  modalTitle.textContent = 'Bestelgegevens';
+  const c = checkoutState.customer;
+  modalBody.innerHTML = `
+    ${stepperHTML()}
+    <h4>Jouw gegevens</h4>
+    <p class="sub">Vul je naam en bezorggegevens in. Velden met * zijn verplicht.</p>
+
+    <label>Volledige naam *</label>
+    <input type="text" id="f-name" value="${c.name || ''}" placeholder="John Doe" required>
+
+    <div class="row-2">
+      <div>
+        <label>Telefoonnummer *</label>
+        <input type="tel" id="f-phone" value="${c.phone || ''}" placeholder="+597 XXX-XXXX" required>
+      </div>
+      <div>
+        <label>Email *</label>
+        <input type="email" id="f-email" value="${c.email || ''}" placeholder="naam@email.com" required>
+      </div>
+    </div>
+
+    <h4 style="margin-top:18px;">Adres in Suriname</h4>
+    <p class="sub">Waar mogen we de bestelling op je naam zetten?</p>
+
+    <div class="row-3">
+      <div>
+        <label>Straat *</label>
+        <input type="text" id="f-street" value="${c.street || ''}" placeholder="Steenbakkerijstraat" required>
+      </div>
+      <div>
+        <label>Nr. *</label>
+        <input type="text" id="f-number" value="${c.number || ''}" placeholder="41" required>
+      </div>
+      <div>
+        <label>Toev.</label>
+        <input type="text" id="f-addition" value="${c.addition || ''}" placeholder="a, b">
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div>
+        <label>Stad / Plaats *</label>
+        <input type="text" id="f-city" value="${c.city || 'Paramaribo'}" placeholder="Paramaribo" required>
+      </div>
+      <div>
+        <label>District *</label>
+        <select id="f-district" required>
+          ${districten.map(d => `<option value="${d}" ${c.district === d ? 'selected' : ''}>${d}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <label>Opmerkingen (optioneel)</label>
+    <textarea id="f-notes" rows="2" placeholder="Geen tomaat, extra pindasaus, etc.">${c.notes || ''}</textarea>
+
+    <div class="modal-actions">
+      <button class="btn-back" id="cancel-btn">Annuleren</button>
+      <button class="btn-primary" id="next-btn">Volgende →</button>
+    </div>
+  `;
+  document.getElementById('cancel-btn').addEventListener('click', closeModal);
+  document.getElementById('next-btn').addEventListener('click', () => {
+    const fields = ['name','phone','email','street','number','city','district'];
+    for (const f of fields) {
+      const v = document.getElementById('f-' + f).value.trim();
+      if (!v) { showToast('Vul alle verplichte velden in'); document.getElementById('f-' + f).focus(); return; }
+      checkoutState.customer[f] = v;
+    }
+    checkoutState.customer.addition = document.getElementById('f-addition').value.trim();
+    checkoutState.customer.notes = document.getElementById('f-notes').value.trim();
+    checkoutState.step = 2; renderStep();
+  });
+}
+
+// STEP 2: Review order
+function renderStep2() {
+  modalTitle.textContent = 'Bestelling bevestigen';
+  const c = checkoutState.customer;
+  const lines = cart.map(ci => {
+    const m = menuItems.find(mi => mi.id === ci.id);
+    return `<div class="line"><span class="it">${m.name}</span><span class="qt">×${ci.qty}</span></div>`;
+  }).join('');
+  modalBody.innerHTML = `
+    ${stepperHTML()}
+    <h4>Overzicht van je bestelling</h4>
+    <p class="sub">Controleer alles voordat je doorgaat naar betalen.</p>
+
+    <div class="modal-summary">
+      ${lines}
+    </div>
+
+    <div class="modal-summary">
+      <div class="line"><span class="it">${c.name}</span><span style="font-size:0.85rem;color:rgba(13,10,8,0.6);">${c.phone}</span></div>
+      <div class="line"><span style="font-size:0.9rem;">${c.street} ${c.number}${c.addition ? '-' + c.addition : ''}, ${c.city}</span><span style="font-size:0.85rem;color:rgba(13,10,8,0.6);">${c.district}</span></div>
+      ${c.notes ? `<div class="line"><span style="font-size:0.88rem;font-style:italic;color:rgba(13,10,8,0.7);">"${c.notes}"</span></div>` : ''}
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-back" id="back-btn">← Terug</button>
+      <button class="btn-primary" id="next-btn">Naar betalen →</button>
+    </div>
+  `;
+  document.getElementById('back-btn').addEventListener('click', () => { checkoutState.step = 1; renderStep(); });
+  document.getElementById('next-btn').addEventListener('click', () => { checkoutState.step = 3; renderStep(); });
+}
+
+// STEP 3: Payment selection
+function renderStep3() {
+  modalTitle.textContent = 'Betaalmethode';
+  modalBody.innerHTML = `
+    ${stepperHTML()}
+    <h4>Kies hoe je wilt betalen</h4>
+    <p class="sub">We werken samen met Mopé voor veilige online betalingen.</p>
+
+    <div class="payment-options">
+      <div class="payment-option mope selected" data-pay="mope">
+        <div class="logo">Mopé</div>
+        <div class="info">
+          <h5>Mopé Wallet</h5>
+          <p>Betaal direct met de Mopé app via Hakrinbank.</p>
+        </div>
+        <div class="check"></div>
+      </div>
+      <div class="payment-option" data-pay="pickup">
+        <div class="logo">PIN</div>
+        <div class="info">
+          <h5>Betalen bij afhalen</h5>
+          <p>Betaal contant of met de pas bij het filiaal.</p>
+        </div>
+        <div class="check"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-back" id="back-btn">← Terug</button>
+      <button class="btn-primary" id="pay-btn">Plaats bestelling →</button>
+    </div>
+  `;
+  document.querySelectorAll('.payment-option').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+      checkoutState.payment = el.dataset.pay;
+    });
+  });
+  document.getElementById('back-btn').addEventListener('click', () => { checkoutState.step = 2; renderStep(); });
+  document.getElementById('pay-btn').addEventListener('click', () => {
+    checkoutState.step = 4;
+    renderStep();
+    initiatePayment();
+  });
+}
+
+// STEP 4: Processing + success
+function renderStep4() {
+  modalTitle.textContent = checkoutState.payment === 'mope' ? 'Mopé Betaling' : 'Bestelling Bevestigd';
+  if (checkoutState.payment === 'mope') {
+    modalBody.innerHTML = `
+      ${stepperHTML()}
+      <div class="mope-redirect">
+        <div class="mope-spinner"></div>
+        <h4>Bezig met doorsturen naar Mopé…</h4>
+        <p>Open de Mopé app op je telefoon om de betaling te bevestigen.</p>
+      </div>
+    `;
+  } else {
+    modalBody.innerHTML = `
+      ${stepperHTML()}
+      <div class="mope-redirect">
+        <div class="mope-spinner"></div>
+        <h4>Bestelling wordt verwerkt…</h4>
+        <p>Een ogenblik geduld alstublieft.</p>
+      </div>
+    `;
+  }
+}
+
+// ============ MOPÉ PAYMENT INTEGRATION ============
+// Based on Mopé Webshop API: https://api.mope.sr/api/shop/payment_request
+// In a real deployment this call goes through the merchant's backend with
+// the Mopé Bearer token. Here we simulate the round-trip for demo purposes.
+async function createMopePaymentRequest() {
+  const c = checkoutState.customer;
+  const items = cart.map(ci => {
+    const m = menuItems.find(mi => mi.id === ci.id);
+    return { id: m.id, name: m.name, quantity: ci.qty };
+  });
+
+  // Payload that a real backend would forward to POST /api/shop/payment_request
+  const payload = {
+    description: `Wolly's bestelling — ${items.length} item(s)`,
+    redirect_url: window.location.origin + '/payment/return',
+    customer: {
+      name: c.name,
+      email: c.email,
+      phone: c.phone,
+      address: {
+        street: c.street,
+        number: c.number + (c.addition ? c.addition : ''),
+        city: c.city,
+        district: c.district,
+        country: 'SR'
+      }
+    },
+    items: items,
+    notes: c.notes || ''
+  };
+
+  console.log('[Mopé] Payment request payload:', payload);
+  // Endpoint we WOULD call (via merchant backend):
+  // POST https://api.mope.sr/api/shop/payment_request
+  // Authorization: Bearer <token>
+
+  // Simulate API delay & response
+  await new Promise(r => setTimeout(r, 2200));
+
+  const paymentId = 'pr_' + Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+  return { id: paymentId, status: 'pending' };
+}
+
+async function initiatePayment() {
+  try {
+    if (checkoutState.payment === 'mope') {
+      const result = await createMopePaymentRequest();
+      checkoutState.paymentId = result.id;
+    } else {
+      await new Promise(r => setTimeout(r, 1500));
+      checkoutState.paymentId = 'order_' + Date.now().toString(36);
+    }
+    showSuccess();
+  } catch (err) {
+    console.error(err);
+    showToast('Er ging iets mis. Probeer opnieuw.');
+  }
+}
+
+function showSuccess() {
+  modalTitle.textContent = 'Bestelling Geplaatst!';
+  const isMope = checkoutState.payment === 'mope';
+  modalBody.innerHTML = `
+    <div class="mope-redirect">
+      <div class="success-check">✓</div>
+      <h4>${isMope ? 'Betaling geslaagd!' : 'Bestelling ontvangen!'}</h4>
+      <p>${isMope
+        ? 'Bedankt! Je Mopé-betaling is verwerkt. Je ontvangt een bevestiging per email.'
+        : 'Bedankt! Je bestelling staat klaar voor afhalen. Betaal bij het filiaal.'}</p>
+      <div class="success-id">Order-ID:<br>${checkoutState.paymentId}</div>
+      <p style="font-size:0.85rem;">Een kopie van je bestelling is verzonden naar <strong>${checkoutState.customer.email}</strong>.</p>
+      <button class="btn-primary" style="margin-top:18px;" id="done-btn">Sluit</button>
+    </div>
+  `;
+  document.getElementById('done-btn').addEventListener('click', () => {
+    cart = [];
+    updateCart();
+    closeModal();
+  });
+}
+
+// ============ SCROLL REVEAL ============
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.section-title, .section-sub, .eyebrow').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.6s, transform 0.6s';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
